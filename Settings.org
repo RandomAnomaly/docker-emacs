@@ -1,0 +1,392 @@
+#+SETUPFILE: https://github.com/fniessen/org-html-themes/blob/master/styles/readtheorg/readtheorg.org
+#+TITLE: Syntactic sugar's emacs settings
+** Getting an org file to work as a emacs settings file
+   :PROPERTIES: 
+   :header-args: :tangle no
+   :END:      
+   Put any relevant elisp code between #+BEGIN_SRC emacs-lisp and #+END_SRC tags. Edit ~/.emacs.d/init.el, and add the following code:
+   #+BEGIN_SRC emacs-lisp
+(require 'org)
+(org-babel-load-file
+ (expand-file-name "Settings.org"
+		   "~/org/"))
+   #+END_SRC
+   Assuming of course the settings file is named Settings.org, and is located under ~/org/.
+
+   Also, it is useful to set your home directory to some shared location
+
+   #+BEGIN_SRC emacs-lisp
+(setenv "HOME" "C:/emacs/home")
+   #+END_SRC
+** Require package manager
+   Package is required for other parts of the settings file, as it allows emacs to 'fill in the blanks' when packages are used but not found (note to self - this is a terrible explanation).
+   #+BEGIN_SRC emacs-lisp
+(require 'package)
+(package-initialize)
+   #+END_SRC
+** Repositories
+   Add Melpa, Org, and GNU to the package manager. Also sets up https access for windows
+   #+BEGIN_SRC emacs-lisp
+(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                    (not (gnutls-available-p))))
+       (proto (if no-ssl "http" "https")))
+  (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+  (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+  (add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
+  (when (< emacs-major-version 24)
+    (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
+   #+END_SRC
+** Theming
+*** Remove visual noise
+    Set the settings to hide the scroll bars etc
+    #+BEGIN_SRC emacs-lisp
+(setq visible-bell 1)
+(visual-line-mode 1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+    #+END_SRC
+*** Theme
+    Sets the current overall theme.
+    #+BEGIN_SRC emacs-lisp
+(load-theme 'spacemacs-dark t)
+    #+END_SRC
+*** Dev quality of life
+**** Parenthesis
+     Turn on paren-mode (basically, parenthesis matching) and adjust the display delay
+     #+BEGIN_SRC emacs-lisp
+(setq show-paren-delay 0)
+(show-paren-mode 1)
+     #+END_SRC
+*** Dashboard
+    #+BEGIN_SRC emacs-lisp
+(require 'dashboard)
+(dashboard-setup-startup-hook)
+    #+END_SRC
+** Basic Dev Settings
+   This is where I keep most of my basic dev quality of life type settings
+   
+   UCase and DCase region are disabled by default, enable them. Cursor on a word (M-u, M-l) converts the whole word to upper or lower case. (M-c) converts the letter under the cursor to uppercase.
+   #+BEGIN_SRC emacs-lisp
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+   #+END_SRC
+   
+   Keyboard shortcuts for resizing windows
+   #+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "S-C-<left>") 'shrink-window-horizontally)
+(global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
+(global-set-key (kbd "S-C-<down>") 'shrink-window)
+(global-set-key (kbd "S-C-<up>") 'enlarge-window)
+   #+END_SRC
+   
+   By default eshell can only easily have one instance running. This adds a eshell-new command, allowing multiple processes
+   #+BEGIN_SRC emacs-lisp
+(defun eshell-new()
+  "Open a new instance of eshell."
+  (interactive)
+  (eshell 'N))
+   #+END_SRC
+
+I like seeing line numbers
+#+BEGIN_SRC emacs-lisp
+(global-linum-mode 1)
+#+END_SRC
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-!") 'eshell-command)
+#+end_src
+** Multiple Cursors
+   Multiple cursor is a very useful tool that allows you to interact with a buffer using (surprise!) multiple cursors.
+   
+   After having highlighted a region, hit (C-C C-C) to get a cursor at the start of each line
+   #+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+   #+END_SRC
+   
+   Highlight a region, then add another cursor to the next region like this (C->), previous region like this (C-<), or all regions in the buffer like this (C-c C-<).
+   #+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+   #+END_SRC
+   
+   Helper function to have some more interesting options for inserting values in multiple cursors
+   
+   #+BEGIN_SRC emacs-lisp
+(defvar mc--insert-fancy-numbers-increment 1)
+(defvar mc--insert-fancy-numbers-format "%d")
+
+(defun mc/insert-fancy-numbers (start step format)
+  "Insert increasing numbers for each cursor, starting from START,
+counting by STEP and formatting them with the FORMAT specifier."
+  (interactive "nStarting number: \nnIncrement: \nsFormat specifier (RET for '%%d'): ")
+  (setq mc--insert-numbers-number start)
+  (setq mc--insert-fancy-numbers-increment step)
+  (setq mc--insert-fancy-numbers-format
+        (if (string= format "") "%d" format))
+  (mc/for-each-cursor-ordered
+   (mc/execute-command-for-fake-cursor 'mc--insert-fancy-number-and-increase cursor)))
+
+(defun mc--insert-fancy-number-and-increase ()
+  (interactive)
+  (insert (format mc--insert-fancy-numbers-format mc--insert-numbers-number))
+  (setq mc--insert-numbers-number
+        (+ mc--insert-numbers-number mc--insert-fancy-numbers-increment)))
+   #+END_SRC
+   
+** YASnippets
+   Yasnippets allow me to create helpful code snippets and use them with a shorthand code and the tab key.
+   
+   Set the default directory for snippets to be stored in.
+   #+BEGIN_SRC emacs-lisp
+(setq yas-snippet-dirs
+      '("~/.emacs.d/snippets"
+	))
+   #+END_SRC
+   
+   Enable yasnippets globally
+   #+BEGIN_SRC emacs-lisp
+(yas-global-mode 1)
+   #+END_SRC
+   
+** Helm
+   Helm is this cool "auto explore" type thing. Basically really helps with feature discovery. As you're entering things into M-x and elsewhere, it'll let you know what commands are at your disposal, and give you a description of them.
+   
+   Require helm
+   #+BEGIN_SRC emacs-lisp
+(require 'helm-config)
+   #+END_SRC
+   
+   Enable it
+   #+BEGIN_SRC emacs-lisp
+(helm-mode 1)
+   #+END_SRC
+   
+   Ensure helm takes over (C-x C-f) and (M-x)
+   #+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "M-x") 'helm-M-x)
+   #+END_SRC
+** Telephone Line
+   Telephone line is just a nice emacs mode line
+   
+   Require the telephone line package
+   #+BEGIN_SRC emacs-lisp
+(require 'telephone-line)
+   #+END_SRC
+   
+   Customise its appearance
+   #+BEGIN_SRC emacs-lisp
+(setq telephone-line-primary-left-separator 'telephone-line-cubed-left
+      telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
+      telephone-line-primary-right-separator 'telephone-line-cubed-right
+      telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
+(setq telephone-line-height 24
+      telephone-line-evil-use-short-tag t)
+   #+END_SRC
+   
+   Enable it
+   #+BEGIN_SRC emacs-lisp
+(telephone-line-mode 1)
+   #+END_SRC
+** Org settings
+*** Basic settings
+**** Time logging
+     Ensures that org will add a timestamp to a item when it goes to a done status. Useful for client billing etc
+     #+BEGIN_SRC emacs-lisp
+(setq org-log-done 'time)
+     #+END_SRC
+*** Getting Things Done
+    Settings relevant to implementing Dave Allen's Getting Things Done methodology in Org Mode
+**** Agenda 
+     Set the files to pull agenda items from
+     #+BEGIN_SRC emacs-lisp
+(setq org-agenda-files '("~/org/inbox.org"
+			 "~/org/gtd.org"
+			 "~/org/tickler.org"))
+     #+END_SRC
+     There are multiple agendas, based on my current /context/, e.g. when I am at home, I only want to know about tasks that are relevant to me while I am at home. This sets up multiple agendas, which will only show tasks that have been tagged (C-c C-c) with the relevant context.
+     #+BEGIN_SRC emacs-lisp
+(setq org-agenda-custom-commands 
+      '(("o" "At the office" tags-todo "@work"
+         ((org-agenda-overriding-header "Office")
+          (org-agenda-skip-function '(my-org-agenda-skip-all-siblings-but-first))))
+	("h" "At home" tags-todo "@home"
+         ((org-agenda-overriding-header "Home")
+          (org-agenda-skip-function '(my-org-agenda-skip-all-siblings-but-first))))
+	("s" "At supermarket" tags-todo "@supermarket"
+         ((org-agenda-overriding-header "Supermarket")
+          ))
+	))
+
+(defun org-agenda-skip-if-scheduled-later ()
+"If this function returns nil, the current match should not be skipped.
+Otherwise, the function must return a position from where the search
+should be continued."
+  (ignore-errors
+    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+          (scheduled-seconds
+            (time-to-seconds
+              (org-time-string-to-time
+                (org-entry-get nil "SCHEDULED"))))
+          (now (time-to-seconds (current-time))))
+       (and scheduled-seconds
+            (>= scheduled-seconds now)
+            subtree-end))))
+
+(defun my-org-agenda-skip-all-siblings-but-first ()
+  "Skip all but the first non-done entry."
+  (let (should-skip-entry)
+    (unless (org-current-is-todo)
+      (setq should-skip-entry t))
+    (save-excursion
+      (while (and (not should-skip-entry) (org-goto-sibling t))
+        (when (org-current-is-todo)
+          (setq should-skip-entry t))))
+    (when should-skip-entry
+      (or (outline-next-heading)
+          (goto-char (point-max))))))
+     #+END_SRC
+     Add a keyboard shortcut for viewing the org agenda screen (C-c a)
+     #+BEGIN_SRC emacs-lisp
+(global-set-key "\C-ca" 'org-agenda)
+     #+END_SRC
+**** Refiling
+     Items are captured and placed into the inbox.org file automatically. We then use org-refile (C-c C-w) in order to move these items to their relevant projects. Projects may also be refiled into the Someday.org file when they are not relevant for the next week or so. This sets up the relevant refiling targets.
+     #+BEGIN_SRC emacs-lisp
+(setq org-refile-targets '(("~/org/gtd.org" :maxlevel . 3)
+                           ("~/org/someday.org" :level . 1)
+                           ("~/org/tickler.org" :maxlevel . 2)))
+     #+END_SRC
+**** Capturing
+     Setup the org-mode capturer, for use of grabbing items.
+     #+BEGIN_SRC emacs-lisp
+(setq org-capture-templates '(("t" "Todo [inbox]" entry
+                               (file+headline "~/org/inbox.org" "Tasks")
+                               "* TODO %i%?")
+                              ("T" "Tickler" entry
+                               (file+headline "~/org/tickler.org" "Tickler")
+                               "* %i%? \n %U")))
+     #+END_SRC
+     Add a global keyboard shortcut for capturing thoughts (C-c c)
+     #+BEGIN_SRC emacs-lisp
+(define-key global-map "\C-cc" 'org-capture)
+     #+END_SRC
+**** Processing
+     In the main gtd.org file, items move between several states. This sets the different states available for each item.
+     #+BEGIN_SRC emacs-lisp
+(setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "DELEGATED(l)" "|" "DONE(d)" "CANCELLED(c)")))
+     #+END_SRC
+     This is a helper method for the above, just checks whether the given item is a "TODO" item.
+     #+BEGIN_SRC emacs-lisp
+(defun org-current-is-todo ()
+  (string= "TODO" (org-get-todo-state)))
+     #+END_SRC    
+** Backups   
+   #+BEGIN_SRC emacs-lisp
+(setq backup-directory-alist '(("." . "~/MyEmacsBackups")))
+   #+END_SRC
+** Projectile
+#+BEGIN_SRC emacs-lisp
+(projectile-mode +1)
+(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+
+(setq projectile-indexing-method 'alien)
+(setq projectile-enable-caching nil)
+(add-to-list 'projectile-globally-ignored-directories "node_modules")
+#+END_SRC
+** Which key
+#+BEGIN_SRC emacs-lisp
+(require 'which-key)
+(which-key-mode)
+#+END_SRC
+** Eyebrowse
+#+BEGIN_SRC emacs-lisp
+(require 'eyebrowse)
+(eyebrowse-mode t)
+#+END_SRC
+** Url encode decode -xah
+   #+BEGIN_SRC emacs-lisp
+(defun xah-html-decode-percent-encoded-url ()
+  "Decode percent encoded URL of current line or selection.
+
+Example:
+ %28D%C3%BCrer%29
+becomes
+ (Dürer)
+
+Example:
+ %E6%96%87%E6%9C%AC%E7%BC%96%E8%BE%91%E5%99%A8
+becomes
+ 文本编辑器
+
+URL `http://ergoemacs.org/emacs/emacs_url_percent_decode.html'
+Version 2018-10-26"
+  (interactive)
+  (let ( $p1 $p2 $input-str $newStr)
+    (if (use-region-p)
+        (setq $p1 (region-beginning) $p2 (region-end))
+      (setq $p1 (line-beginning-position) $p2 (line-end-position)))
+    (setq $input-str (buffer-substring-no-properties $p1 $p2))
+    (require 'url-util)
+    (setq $newStr (url-unhex-string $input-str))
+    (if (string-equal $newStr $input-str)
+        (progn (message "no change" ))
+      (progn
+        (delete-region $p1 $p2)
+        (insert (decode-coding-string $newStr 'utf-8))))))
+
+
+(defun xah-html-encode-percent-encoded-url ()
+  "Percent encode URL in current line or selection.
+
+Example:
+    http://example.org/(Dürer)
+becomes
+    http://example.org/(D%C3%BCrer)
+
+Example:
+    http://example.org/文本编辑器
+becomes
+    http://example.org/%E6%96%87%E6%9C%AC%E7%BC%96%E8%BE%91%E5%99%A8
+
+URL `http://ergoemacs.org/emacs/emacs_url_percent_decode.html'
+Version 2018-10-26"
+  (interactive)
+  (let ($p1 $p2 $input-str $newStr)
+    (if (use-region-p)
+        (setq $p1 (region-beginning) $p2 (region-end))
+      (setq $p1 (line-beginning-position) $p2 (line-end-position)))
+    (setq $input-str (buffer-substring-no-properties $p1 $p2))
+    (require 'url-util)
+    (setq $newStr (url-encode-url $input-str))
+    (if (string-equal $newStr $input-str)
+        (progn (message "no change" ))
+      (progn
+        (delete-region $p1 $p2)
+        (insert $newStr)))))
+   #+END_SRC
+** Dumb Jump
+   #+BEGIN_SRC emacs-lisp
+;(require dumb-jump)
+(dumb-jump-mode)
+   #+END_SRC
+** Sublimity
+#+BEGIN_SRC emacs-lisp
+(require 'sublimity)
+(require 'sublimity-scroll)
+;(require 'sublimity-map) ;; experimental
+(require 'sublimity-attractive)
+(setq sublimity-attractive-centering-width 150)
+
+
+(sublimity-mode 1)
+#+END_SRC
+** Flycheck
+#+BEGIN_SRC emacs-lisp
+(require 'flycheck)
+
+(setq flycheck-terraform-tflint-executable "C:\\Users\\jgammon\\Downloads\\tflint_windows_amd64\\tflint_windows_amd64\\tflint.exe")
+#+END_SRC
