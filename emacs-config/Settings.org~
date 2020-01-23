@@ -66,6 +66,7 @@
      #+END_SRC
 *** Dashboard
     #+BEGIN_SRC emacs-lisp
+(package-install 'dashboard)
 (require 'dashboard)
 (dashboard-setup-startup-hook)
     #+END_SRC
