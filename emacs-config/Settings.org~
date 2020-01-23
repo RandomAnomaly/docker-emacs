@@ -35,7 +35,6 @@
   (add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
   (when (< emacs-major-version 24)
     (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
-    (package-refresh-contents)
    #+END_SRC
 ** Theming
 *** Remove visual noise
@@ -50,7 +49,6 @@
 *** Theme
     Sets the current overall theme.
     #+BEGIN_SRC emacs-lisp
-(package-install 'spacemacs-theme)
 (load-theme 'spacemacs-dark t)
     #+END_SRC
 *** Dev quality of life
