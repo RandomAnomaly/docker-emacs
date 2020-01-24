@@ -235,9 +235,9 @@ counting by STEP and formatting them with the FORMAT specifier."
 **** Agenda 
      Set the files to pull agenda items from
      #+BEGIN_SRC emacs-lisp
-(setq org-agenda-files '("~/org/inbox.org"
-			 "~/org/gtd.org"
-			 "~/org/tickler.org"))
+(setq org-agenda-files '("~/source/org/inbox.org"
+			 "~/source/org/gtd.org"
+			 "~/source/org/tickler.org"))
      #+END_SRC
      There are multiple agendas, based on my current /context/, e.g. when I am at home, I only want to know about tasks that are relevant to me while I am at home. This sets up multiple agendas, which will only show tasks that have been tagged (C-c C-c) with the relevant context.
      #+BEGIN_SRC emacs-lisp
@@ -288,18 +288,18 @@ should be continued."
 **** Refiling
      Items are captured and placed into the inbox.org file automatically. We then use org-refile (C-c C-w) in order to move these items to their relevant projects. Projects may also be refiled into the Someday.org file when they are not relevant for the next week or so. This sets up the relevant refiling targets.
      #+BEGIN_SRC emacs-lisp
-(setq org-refile-targets '(("~/org/gtd.org" :maxlevel . 3)
-                           ("~/org/someday.org" :level . 1)
-                           ("~/org/tickler.org" :maxlevel . 2)))
+(setq org-refile-targets '(("~/source/org/gtd.org" :maxlevel . 3)
+                           ("~/source/org/someday.org" :level . 1)
+                           ("~/source/org/tickler.org" :maxlevel . 2)))
      #+END_SRC
 **** Capturing
      Setup the org-mode capturer, for use of grabbing items.
      #+BEGIN_SRC emacs-lisp
 (setq org-capture-templates '(("t" "Todo [inbox]" entry
-                               (file+headline "~/org/inbox.org" "Tasks")
+                               (file+headline "~/source/org/inbox.org" "Tasks")
                                "* TODO %i%?")
                               ("T" "Tickler" entry
-                               (file+headline "~/org/tickler.org" "Tickler")
+                               (file+headline "~/source/org/tickler.org" "Tickler")
                                "* %i%? \n %U")))
      #+END_SRC
      Add a global keyboard shortcut for capturing thoughts (C-c c)
