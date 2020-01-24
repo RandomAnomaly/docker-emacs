@@ -23,12 +23,11 @@
    #+BEGIN_SRC emacs-lisp
 (require 'package)
 (package-initialize)
-
-(package-install 'use-package)
    #+END_SRC
 ** Repositories
    Add Melpa, Org, and GNU to the package manager. Also sets up https access for windows
    #+BEGIN_SRC emacs-lisp
+
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
        (proto (if no-ssl "http" "https")))
@@ -38,8 +37,16 @@
   (when (< emacs-major-version 24)
     (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
 
-(package-refresh-contents)
    #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+(when (not package-archive-contents)
+  (package-refresh-contents))
+   #+END_SRC
+** Use package
+#+BEGIN_SRC emacs-lisp
+(package-install 'use-package)
+#+END_SRC
 ** Theming
 *** Remove visual noise
     Set the settings to hide the scroll bars etc
@@ -56,9 +63,9 @@
 *** Theme
     Sets the current overall theme.
     #+BEGIN_SRC emacs-lisp
-(use-package spacemacs-theme
-:ensure t)
-(load-theme 'spacemacs-dark t)
+(use-package spacemacs-common
+:ensure spacemacs-theme
+:config (load-theme 'spacemacs-dark t))
     #+END_SRC
 *** Dev quality of life
 **** Parenthesis
@@ -406,10 +413,12 @@ Version 2018-10-26"
    #+BEGIN_SRC emacs-lisp
 (use-package dumb-jump
 :ensure t)
-(require dumb-jump)
 (dumb-jump-mode)
    #+END_SRC
 ** Sublimity
+   :PROPERTIES: 
+   :header-args: :tangle no
+   :END:
 #+BEGIN_SRC emacs-lisp
 (use-package sublimity
 :ensure t)
