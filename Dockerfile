@@ -3,6 +3,7 @@ FROM ubuntu
 RUN apt-get update
 RUN apt-get install -y bash
 RUN apt-get install -y emacs
+RUN apt-get install -y git
 
 RUN addgroup appgroup && adduser emacs-user --ingroup appgroup
 USER emacs-user

@@ -437,5 +437,10 @@ Version 2018-10-26"
 :ensure t)
 (require 'flycheck)
 
-(setq flycheck-terraform-tflint-executable "C:\\Users\\jgammon\\Downloads\\tflint_windows_amd64\\tflint_windows_amd64\\tflint.exe")
+;;(setq flycheck-terraform-tflint-executable "C:\\Users\\jgammon\\Downloads\\tflint_windows_amd64\\tflint_windows_amd64\\tflint.exe")
+#+END_SRC
+** Magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+:ensure t)
 #+END_SRC
