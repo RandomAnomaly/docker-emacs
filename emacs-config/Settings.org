@@ -3,7 +3,7 @@
 ** Getting an org file to work as a emacs settings file
    :PROPERTIES: 
    :header-args: :tangle no
-   :END:      
+   :END:
    Put any relevant elisp code between #+BEGIN_SRC emacs-lisp and #+END_SRC tags. Edit ~/.emacs.d/init.el, and add the following code:
    #+BEGIN_SRC emacs-lisp
 (require 'org)
@@ -23,6 +23,8 @@
    #+BEGIN_SRC emacs-lisp
 (require 'package)
 (package-initialize)
+
+(package-install 'use-package)
    #+END_SRC
 ** Repositories
    Add Melpa, Org, and GNU to the package manager. Also sets up https access for windows
@@ -54,7 +56,8 @@
 *** Theme
     Sets the current overall theme.
     #+BEGIN_SRC emacs-lisp
-(package-install 'spacemacs-theme)
+(use-package spacemacs-theme
+:ensure t)
 (load-theme 'spacemacs-dark t)
     #+END_SRC
 *** Dev quality of life
@@ -65,8 +68,12 @@
 (show-paren-mode 1)
      #+END_SRC
 *** Dashboard
+   :PROPERTIES: 
+   :header-args: :tangle no
+   :END:
     #+BEGIN_SRC emacs-lisp
-(package-install 'dashboard)
+(use-package dashboard
+:ensure t)
 (require 'dashboard)
 (dashboard-setup-startup-hook)
     #+END_SRC
@@ -144,7 +151,10 @@ counting by STEP and formatting them with the FORMAT specifier."
    
 ** YASnippets
    Yasnippets allow me to create helpful code snippets and use them with a shorthand code and the tab key.
-   
+   #+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+:ensure t)
+   #+END_SRC
    Set the default directory for snippets to be stored in.
    #+BEGIN_SRC emacs-lisp
 (setq yas-snippet-dirs
@@ -159,7 +169,10 @@ counting by STEP and formatting them with the FORMAT specifier."
    
 ** Helm
    Helm is this cool "auto explore" type thing. Basically really helps with feature discovery. As you're entering things into M-x and elsewhere, it'll let you know what commands are at your disposal, and give you a description of them.
-   
+   #+BEGIN_SRC emacs-lisp
+(use-package helm
+:ensure t)
+   #+END_SRC
    Require helm
    #+BEGIN_SRC emacs-lisp
 (require 'helm-config)
@@ -180,22 +193,28 @@ counting by STEP and formatting them with the FORMAT specifier."
    
    Require the telephone line package
    #+BEGIN_SRC emacs-lisp
+(use-package telephone-line
+:ensure t)
 (require 'telephone-line)
    #+END_SRC
    
    Customise its appearance
    #+BEGIN_SRC emacs-lisp
+
 (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
       telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
       telephone-line-primary-right-separator 'telephone-line-cubed-right
       telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
 (setq telephone-line-height 24
       telephone-line-evil-use-short-tag t)
+
    #+END_SRC
    
    Enable it
    #+BEGIN_SRC emacs-lisp
+
 (telephone-line-mode 1)
+
    #+END_SRC
 ** Org settings
 *** Basic settings
@@ -292,10 +311,14 @@ should be continued."
      #+END_SRC    
 ** Backups   
    #+BEGIN_SRC emacs-lisp
+
 (setq backup-directory-alist '(("." . "~/MyEmacsBackups")))
+
    #+END_SRC
 ** Projectile
 #+BEGIN_SRC emacs-lisp
+(use-package projectile
+:ensure t)
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
@@ -306,11 +329,15 @@ should be continued."
 #+END_SRC
 ** Which key
 #+BEGIN_SRC emacs-lisp
+(use-package which-key
+:ensure t)
 (require 'which-key)
 (which-key-mode)
 #+END_SRC
 ** Eyebrowse
 #+BEGIN_SRC emacs-lisp
+(use-package eyebrowse
+:ensure t)
 (require 'eyebrowse)
 (eyebrowse-mode t)
 #+END_SRC
@@ -377,11 +404,15 @@ Version 2018-10-26"
    #+END_SRC
 ** Dumb Jump
    #+BEGIN_SRC emacs-lisp
-;(require dumb-jump)
+(use-package dumb-jump
+:ensure t)
+(require dumb-jump)
 (dumb-jump-mode)
    #+END_SRC
 ** Sublimity
 #+BEGIN_SRC emacs-lisp
+(use-package sublimity
+:ensure t)
 (require 'sublimity)
 (require 'sublimity-scroll)
 ;(require 'sublimity-map) ;; experimental
@@ -393,6 +424,8 @@ Version 2018-10-26"
 #+END_SRC
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
+(use-package flycheck
+:ensure t)
 (require 'flycheck)
 
 (setq flycheck-terraform-tflint-executable "C:\\Users\\jgammon\\Downloads\\tflint_windows_amd64\\tflint_windows_amd64\\tflint.exe")
