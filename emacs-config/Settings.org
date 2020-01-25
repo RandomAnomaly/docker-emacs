@@ -443,4 +443,8 @@ Version 2018-10-26"
 #+BEGIN_SRC emacs-lisp
 (use-package magit
 :ensure t)
+
+(use-package forge
+  :ensure t
+  :after magit)
 #+END_SRC
