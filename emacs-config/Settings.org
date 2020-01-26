@@ -3,7 +3,7 @@
 ** Getting an org file to work as a emacs settings file
    :PROPERTIES: 
    :header-args: :tangle no
-   :END:      
+   :END:
    Put any relevant elisp code between #+BEGIN_SRC emacs-lisp and #+END_SRC tags. Edit ~/.emacs.d/init.el, and add the following code:
    #+BEGIN_SRC emacs-lisp
 (require 'org)
@@ -27,6 +27,7 @@
 ** Repositories
    Add Melpa, Org, and GNU to the package manager. Also sets up https access for windows
    #+BEGIN_SRC emacs-lisp
+
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
        (proto (if no-ssl "http" "https")))
@@ -36,8 +37,16 @@
   (when (< emacs-major-version 24)
     (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
 
-(package-refresh-contents)
    #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+(when (not package-archive-contents)
+  (package-refresh-contents))
+   #+END_SRC
+** Use package
+#+BEGIN_SRC emacs-lisp
+(package-install 'use-package)
+#+END_SRC
 ** Theming
 *** Remove visual noise
     Set the settings to hide the scroll bars etc
@@ -54,8 +63,9 @@
 *** Theme
     Sets the current overall theme.
     #+BEGIN_SRC emacs-lisp
-(package-install 'spacemacs-theme)
-(load-theme 'spacemacs-dark t)
+(use-package spacemacs-common
+:ensure spacemacs-theme
+:config (load-theme 'spacemacs-dark t))
     #+END_SRC
 *** Dev quality of life
 **** Parenthesis
@@ -65,8 +75,12 @@
 (show-paren-mode 1)
      #+END_SRC
 *** Dashboard
+   :PROPERTIES: 
+   :header-args: :tangle no
+   :END:
     #+BEGIN_SRC emacs-lisp
-(package-install 'dashboard)
+(use-package dashboard
+:ensure t)
 (require 'dashboard)
 (dashboard-setup-startup-hook)
     #+END_SRC
@@ -144,7 +158,10 @@ counting by STEP and formatting them with the FORMAT specifier."
    
 ** YASnippets
    Yasnippets allow me to create helpful code snippets and use them with a shorthand code and the tab key.
-   
+   #+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+:ensure t)
+   #+END_SRC
    Set the default directory for snippets to be stored in.
    #+BEGIN_SRC emacs-lisp
 (setq yas-snippet-dirs
@@ -159,7 +176,10 @@ counting by STEP and formatting them with the FORMAT specifier."
    
 ** Helm
    Helm is this cool "auto explore" type thing. Basically really helps with feature discovery. As you're entering things into M-x and elsewhere, it'll let you know what commands are at your disposal, and give you a description of them.
-   
+   #+BEGIN_SRC emacs-lisp
+(use-package helm
+:ensure t)
+   #+END_SRC
    Require helm
    #+BEGIN_SRC emacs-lisp
 (require 'helm-config)
@@ -180,22 +200,28 @@ counting by STEP and formatting them with the FORMAT specifier."
    
    Require the telephone line package
    #+BEGIN_SRC emacs-lisp
+(use-package telephone-line
+:ensure t)
 (require 'telephone-line)
    #+END_SRC
    
    Customise its appearance
    #+BEGIN_SRC emacs-lisp
+
 (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
       telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
       telephone-line-primary-right-separator 'telephone-line-cubed-right
       telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
 (setq telephone-line-height 24
       telephone-line-evil-use-short-tag t)
+
    #+END_SRC
    
    Enable it
    #+BEGIN_SRC emacs-lisp
+
 (telephone-line-mode 1)
+
    #+END_SRC
 ** Org settings
 *** Basic settings
@@ -209,9 +235,9 @@ counting by STEP and formatting them with the FORMAT specifier."
 **** Agenda 
      Set the files to pull agenda items from
      #+BEGIN_SRC emacs-lisp
-(setq org-agenda-files '("~/org/inbox.org"
-			 "~/org/gtd.org"
-			 "~/org/tickler.org"))
+(setq org-agenda-files '("~/source/org/inbox.org"
+			 "~/source/org/gtd.org"
+			 "~/source/org/tickler.org"))
      #+END_SRC
      There are multiple agendas, based on my current /context/, e.g. when I am at home, I only want to know about tasks that are relevant to me while I am at home. This sets up multiple agendas, which will only show tasks that have been tagged (C-c C-c) with the relevant context.
      #+BEGIN_SRC emacs-lisp
@@ -262,18 +288,18 @@ should be continued."
 **** Refiling
      Items are captured and placed into the inbox.org file automatically. We then use org-refile (C-c C-w) in order to move these items to their relevant projects. Projects may also be refiled into the Someday.org file when they are not relevant for the next week or so. This sets up the relevant refiling targets.
      #+BEGIN_SRC emacs-lisp
-(setq org-refile-targets '(("~/org/gtd.org" :maxlevel . 3)
-                           ("~/org/someday.org" :level . 1)
-                           ("~/org/tickler.org" :maxlevel . 2)))
+(setq org-refile-targets '(("~/source/org/gtd.org" :maxlevel . 3)
+                           ("~/source/org/someday.org" :level . 1)
+                           ("~/source/org/tickler.org" :maxlevel . 2)))
      #+END_SRC
 **** Capturing
      Setup the org-mode capturer, for use of grabbing items.
      #+BEGIN_SRC emacs-lisp
 (setq org-capture-templates '(("t" "Todo [inbox]" entry
-                               (file+headline "~/org/inbox.org" "Tasks")
+                               (file+headline "~/source/org/inbox.org" "Tasks")
                                "* TODO %i%?")
                               ("T" "Tickler" entry
-                               (file+headline "~/org/tickler.org" "Tickler")
+                               (file+headline "~/source/org/tickler.org" "Tickler")
                                "* %i%? \n %U")))
      #+END_SRC
      Add a global keyboard shortcut for capturing thoughts (C-c c)
@@ -292,10 +318,14 @@ should be continued."
      #+END_SRC    
 ** Backups   
    #+BEGIN_SRC emacs-lisp
+
 (setq backup-directory-alist '(("." . "~/MyEmacsBackups")))
+
    #+END_SRC
 ** Projectile
 #+BEGIN_SRC emacs-lisp
+(use-package projectile
+:ensure t)
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
@@ -306,11 +336,15 @@ should be continued."
 #+END_SRC
 ** Which key
 #+BEGIN_SRC emacs-lisp
+(use-package which-key
+:ensure t)
 (require 'which-key)
 (which-key-mode)
 #+END_SRC
 ** Eyebrowse
 #+BEGIN_SRC emacs-lisp
+(use-package eyebrowse
+:ensure t)
 (require 'eyebrowse)
 (eyebrowse-mode t)
 #+END_SRC
@@ -377,11 +411,17 @@ Version 2018-10-26"
    #+END_SRC
 ** Dumb Jump
    #+BEGIN_SRC emacs-lisp
-;(require dumb-jump)
+(use-package dumb-jump
+:ensure t)
 (dumb-jump-mode)
    #+END_SRC
 ** Sublimity
+   :PROPERTIES: 
+   :header-args: :tangle no
+   :END:
 #+BEGIN_SRC emacs-lisp
+(use-package sublimity
+:ensure t)
 (require 'sublimity)
 (require 'sublimity-scroll)
 ;(require 'sublimity-map) ;; experimental
@@ -393,7 +433,18 @@ Version 2018-10-26"
 #+END_SRC
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
+(use-package flycheck
+:ensure t)
 (require 'flycheck)
 
-(setq flycheck-terraform-tflint-executable "C:\\Users\\jgammon\\Downloads\\tflint_windows_amd64\\tflint_windows_amd64\\tflint.exe")
+;;(setq flycheck-terraform-tflint-executable "C:\\Users\\jgammon\\Downloads\\tflint_windows_amd64\\tflint_windows_amd64\\tflint.exe")
+#+END_SRC
+** Magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+:ensure t)
+
+(use-package forge
+  :ensure t
+  :after magit)
 #+END_SRC
