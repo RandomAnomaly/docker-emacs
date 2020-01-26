@@ -1,4 +1,3 @@
-#+SETUPFILE: https://github.com/fniessen/org-html-themes/blob/master/styles/readtheorg/readtheorg.org
 #+TITLE: Syntactic sugar's emacs settings
 ** Getting an org file to work as a emacs settings file
    :PROPERTIES: 
@@ -333,6 +332,12 @@ should be continued."
 (setq projectile-indexing-method 'alien)
 (setq projectile-enable-caching nil)
 (add-to-list 'projectile-globally-ignored-directories "node_modules")
+
+(use-package helm-projectile
+  :ensure t
+  :after projectile)
+
+(helm-projectile-on)
 #+END_SRC
 ** Which key
 #+BEGIN_SRC emacs-lisp
@@ -451,5 +456,14 @@ Version 2018-10-26"
 ** Emacs iPython Notebook
 #+BEGIN_SRC emacs-lisp
 (use-package ein
+:ensure t)
+#+END_SRC
+** Language Server
+   :PROPERTIES: 
+   :header-args: :tangle no
+   :END:
+#+BEGIN_SRC emacs-lisp
+(setq allow-package-signature nil)
+(use-package lsp-mode
 :ensure t)
 #+END_SRC
