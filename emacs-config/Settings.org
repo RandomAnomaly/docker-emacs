@@ -448,3 +448,8 @@ Version 2018-10-26"
   :ensure t
   :after magit)
 #+END_SRC
+** Emacs iPython Notebook
+#+BEGIN_SRC emacs-lisp
+(use-package ein
+:ensure t)
+#+END_SRC
