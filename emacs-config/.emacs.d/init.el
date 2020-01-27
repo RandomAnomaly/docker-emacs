@@ -16,7 +16,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (spinner gnu-elpa-keyring-update flycheck sublimity yasnippet which-key use-package telephone-line spacemacs-theme projectile helm eyebrowse dumb-jump))))
+    (dockerfile-mode spinner gnu-elpa-keyring-update flycheck sublimity yasnippet which-key use-package telephone-line spacemacs-theme projectile helm eyebrowse dumb-jump))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

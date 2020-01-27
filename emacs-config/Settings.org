@@ -458,6 +458,13 @@ Version 2018-10-26"
 (use-package ein
 :ensure t)
 #+END_SRC
+** Dockerfile
+#+BEGIN_SRC emacs-lisp
+(use-package dockerfile-mode
+:ensure t)
+
+(add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode))
+#+END_SRC
 ** Language Server
 #+BEGIN_SRC emacs-lisp
 (setq package-check-signature nil)
@@ -470,6 +477,8 @@ Version 2018-10-26"
 :ensure t
 :hook (python-mode . lsp)
 :commands lsp)
+
+(add-hook 'dockerfile-mode-hook #'lsp)
 
 (use-package helm-lsp
 :ensure t
