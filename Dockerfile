@@ -18,7 +18,11 @@ RUN pip3 uninstall -y jedi && pip3 install jedi==0.15.0
 USER root
 RUN apt-get update && apt-get install -y curl && curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n && bash n lts
 RUN npm install -g dockerfile-language-server-nodejs
+RUN apt-get update && apt-get install -y ledger
 USER emacs-user
+
+RUN jupyter notebook --generate-config
+RUN echo "c.NotebookApp.ip = '127.0.0.1'" >> /home/emacs-user/.jupyter/jupyter_notebook_config.py
 
 
 
