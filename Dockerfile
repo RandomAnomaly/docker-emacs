@@ -41,15 +41,12 @@ RUN jupyter notebook --generate-config
 RUN echo "c.NotebookApp.ip = '127.0.0.1'" >> /home/emacs-user/.jupyter/jupyter_notebook_config.py
 
 USER root
-#RUN apt-get update && apt-get install -y ruby-full build-essential zlib1g-dev
-#RUN apt-get update && apt-get install -y wget
-#RUN wget https://rubygems.org/rubygems/rubygems-3.1.2.tgz
-#RUN tar xvfz rubygems-3.1.2.tgz
 RUN apt-get install -y gnupg2
 RUN gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
 RUN curl -sSL https://get.rvm.io | bash -s stable
 RUN bash /etc/profile.d/rvm.sh
 RUN /etc/profile.d/rvm.sh
+RUN rvm install 2.7.0
 USER emacs-user
 
 RUN git config --global user.email "spiffyRAM@gmail.com"
