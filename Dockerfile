@@ -47,6 +47,7 @@ RUN curl -sSL https://get.rvm.io | bash -s stable
 RUN bash /etc/profile.d/rvm.sh
 RUN /etc/profile.d/rvm.sh
 RUN rvm install 2.7.0
+RUN gem install jekyll bundler
 USER emacs-user
 
 RUN git config --global user.email "spiffyRAM@gmail.com"
