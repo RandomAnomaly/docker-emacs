@@ -1,7 +1,37 @@
 $docker_build_command = 'docker build . --tag docker-emacs'
-$docker_run_command = "docker run --rm -e DISPLAY=host.docker.internal:0.0 --volume=$pwd/:/home/emacs-user/docker-emacs-repo --volume=$pwd/working-directory:/home/emacs-user/source -p 4000:4000 --volume=$pwd/emacs-config/.emacs.d:/home/emacs-user/.emacs.d --volume=$HOME/Dropbox:/home/emacs-user/Dropbox --volume=$HOME/.ssh:/home/emacs-user/.ssh -ti docker-emacs"
 
+$docker_settings_file_path = "./docker-settings.js"
+$jsondata = Get-Content -Raw -Path $docker_settings_file_path | ConvertFrom-Json
+$volumes = ""
+$environment_variables = ""
 
-echo $docker_run_command
+$git_user_name = ""
+$git_email = ""
+
+foreach ($setting in $jsondata."docker-settings") {
+    if($setting.type -eq "directoryMap"){
+        $source = $setting.source
+        $destination = $setting.destination
+        $volume_string = "--volume $source`:$destination"
+        $volumes = $volumes + $volume_string + " "
+    } elseif($setting.type -eq "environmentVariable") {
+        $key = $setting.key
+        $value = $setting.value
+        $environment_variable_string = "-e $key=$value"
+        $environment_variables = $environment_variables + $environment_variable_string + " "
+    } elseif($setting.type -eq "gitGlobalConfig"){
+        $key = $setting.key
+        $value = $setting.value
+
+        if($key -eq "user.name"){
+            $git_user_name = $value
+        } elseif($key -eq "user.email"){
+            $git_email = $value
+        }
+    }
+}
+
+$docker_run_command = "docker run " + $volumes + $environment_variables + "-it docker-emacs"
+
 iex $docker_build_command
 iex $docker_run_command

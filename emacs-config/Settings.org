@@ -315,6 +315,42 @@ should be continued."
 (defun org-current-is-todo ()
   (string= "TODO" (org-get-todo-state)))
      #+END_SRC    
+*** Syntactic Sugar blog
+    These are all settings relevant to publishing my blog. I use Jekyll to generate the blog, and org mode to write it. This adds the relevant folders to a org publishing project
+    #+BEGIN_SRC emacs-lisp
+(setq org-publish-project-alist
+      '(
+        ("org-threeone33seven"
+         ;; Location of org files
+         :base-directory "~/org/blog/org/"
+         :base-extension "org"
+
+         ;; Location of Jekyll files
+         :publishing-directory "~/org/blog/jekyll/"
+         :recursive t
+         :publishing-function org-html-publish-to-html
+         :headline-levels 4
+         :html-extension "html"
+
+         ;; Only export section between <body></body>
+         :body-only t)
+
+        ("org-static-threeone33seven"
+         :base-directory "~/org/blog/org/img/"
+         :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg"
+         :publishing-directory "~/org/blog/jekyll/img"
+         :recursive t
+         :publishing-function org-publish-attachment)
+
+        ("rg" :components ("org-threeone33seven" "org-static-threeone33seven"))
+        ))
+    #+END_SRC
+    Now the output blog post html can be generated with C-c e P x rg RET
+    
+    Just helps correct the inline display of images in org files
+    #+BEGIN_SRC emacs-lisp
+(setq org-image-actual-width nil)
+    #+END_SRC
 ** Backups   
    #+BEGIN_SRC emacs-lisp
 

@@ -50,6 +50,10 @@ RUN rvm install 2.7.0
 RUN gem install jekyll bundler
 USER emacs-user
 
+USER root
+RUN npm install -g typescript-language-server
+USER emacs-user
+
 RUN git config --global user.email "spiffyRAM@gmail.com"
 RUN git config --global user.name "Jack Christopher Gammon"
 
