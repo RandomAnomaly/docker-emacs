@@ -1,11 +1,11 @@
 FROM ubuntu:19.10
 
 SHELL [ "/bin/bash", "-l", "-c" ]
-
+RUN apt-get update && apt-get install -y software-properties-common && add-apt-repository universe
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends \
 	bash=5.0-4ubuntu1 \
-	emacs=1:26.3+1-1ubuntu1 \
+	emacs-lucid \
 	git=1:2.20.1-2ubuntu1.19.10.1\
 	gcc=4:9.2.1-3.1ubuntu1\
 	python3=3.7.5-1\
