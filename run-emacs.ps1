@@ -31,7 +31,7 @@ foreach ($setting in $jsondata."docker-settings") {
     }
 }
 
-$docker_run_command = "docker run " + $volumes + $environment_variables + "-it docker-emacs"
-
+$docker_run_command = "docker run -p 10010:10010 " + $volumes + $environment_variables + "-it docker-emacs"
+$xpra_run_command = 'C:/Program Files/xpra/Xpra attach tcp://localhost:10010/ --window-close=disconnect'
 iex $docker_build_command
 iex $docker_run_command

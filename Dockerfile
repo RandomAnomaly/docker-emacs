@@ -52,10 +52,20 @@ USER emacs-user
 
 USER root
 RUN npm install -g typescript-language-server
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y wget python
+# add GPG key
+RUN wget -q https://xpra.org/gpg.asc -O- | apt-key add -
+# add XPRA repository
+RUN add-apt-repository "deb https://xpra.org/ eoan main"
+# install XPRA package
+RUN apt-get update && apt-get install -y xpra --no-install-recommends
+RUN usermod -a -G tty emacs-user
 USER emacs-user
 
 RUN git config --global user.email "spiffyRAM@gmail.com"
 RUN git config --global user.name "Jack Christopher Gammon"
 
 COPY ./emacs-config/Settings.org /home/emacs-user/
-CMD emacs
+
+CMD ["xpra", "start", ":10", "--start-child=emacs", "--daemon=off", "--bind-tcp=0.0.0.0:10010"]
